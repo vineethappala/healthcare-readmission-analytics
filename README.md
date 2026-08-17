@@ -71,6 +71,7 @@ Processed Analytics Data
       |
       v
 Power BI Dashboard
+```
 
 ## Repository Structure
 
