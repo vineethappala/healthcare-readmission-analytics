@@ -1,98 +1,148 @@
 # Healthcare Readmission Analytics — Data Model
 
-## 1. Project Overview
+## Purpose
 
-This project analyzes patient readmissions, healthcare utilization, length of stay, follow-up activity, and encounter costs using a synthetic healthcare dataset.
+This project analyzes synthetic healthcare encounter data to identify
+patterns associated with 30-day hospital readmissions.
 
-The analytical model is designed to support patient-level and encounter-level analysis while maintaining clear relationships between core healthcare entities.
+The analytical model is designed to support repeatable KPI reporting
+and dashboard development.
 
-## 2. Data Model
+## Data Grain
 
-The project uses four core tables:
+The primary analytical grain is:
 
-- patients
-- encounters
-- diagnoses
-- follow_ups
+> One row per healthcare encounter.
 
-The `encounters` table serves as the primary fact table.
-
-## 3. Table Definitions
+## Source Tables
 
 ### patients
 
-Stores patient-level demographic and insurance information.
+One row per patient.
 
-| Column | Description |
-|---|---|
-| patient_id | Unique patient identifier |
-| date_of_birth | Patient date of birth |
-| gender | Patient gender |
-| race | Race/ethnicity category |
-| insurance_type | Insurance category |
-| zip_code | ZIP code |
+Key:
+- patient_id
+
+Attributes:
+- date_of_birth
+- gender
+- race
+- insurance_type
+- zip_code
 
 ### encounters
 
-Stores individual healthcare encounters.
+One row per healthcare encounter.
 
-| Column | Description |
-|---|---|
-| encounter_id | Unique encounter identifier |
-| patient_id | Related patient |
-| admission_date | Admission date |
-| discharge_date | Discharge date |
-| admission_type | Emergency, Elective, or Urgent |
-| department | Treating department |
-| primary_diagnosis | Primary diagnosis |
-| length_of_stay | Number of days between admission and discharge |
-| total_charges | Encounter charges |
-| discharge_disposition | Discharge status/destination |
-| readmitted_30_days | 30-day readmission indicator |
+Key:
+- encounter_id
+
+Foreign keys:
+- patient_id
+- diagnosis_code
+
+Key analytical fields:
+- admission_date
+- discharge_date
+- admission_type
+- department
+- length_of_stay
+- total_charges
+- discharge_disposition
+- readmitted_30_days
 
 ### diagnoses
 
-Stores diagnosis reference information.
+One row per diagnosis code.
 
-| Column | Description |
-|---|---|
-| diagnosis_code | Unique diagnosis code |
-| diagnosis_name | Diagnosis description |
-| diagnosis_category | Broad clinical category |
+Key:
+- diagnosis_code
+
+Attributes:
+- diagnosis_name
+- diagnosis_category
 
 ### follow_ups
 
-Stores post-discharge follow-up activity.
+Potentially multiple records per encounter.
 
-| Column | Description |
-|---|---|
-| follow_up_id | Unique follow-up identifier |
-| encounter_id | Related encounter |
-| follow_up_date | Date of follow-up |
-| follow_up_type | Type of follow-up |
-| completed | Follow-up completion indicator |
+Key:
+- follow_up_id
 
-## 4. Table Relationships
+Foreign key:
+- encounter_id
 
-- One patient can have multiple encounters.
-- One encounter can have follow-up activity.
-- Diagnoses provide reference information used to categorize encounters.
+Attributes:
+- follow_up_date
+- follow_up_type
+- completed
 
-## 5. Fact Table Grain
+## Analytical Model
 
-The grain of the `encounters` table is:
+The raw encounter data is transformed into:
 
-> One row represents one healthcare encounter.
+### fact_encounter
 
-This distinction is important because patient-level and encounter-level metrics must be calculated differently.
+One row per healthcare encounter.
 
-For example:
+### dim_patient
 
-- Total Patients = COUNT(DISTINCT patient_id)
-- Total Encounters = COUNT(DISTINCT encounter_id)
+One row per patient.
 
-## 6. Data Privacy
+### dim_diagnosis
 
-This project uses synthetic data for portfolio and learning purposes.
+One row per diagnosis code.
 
-No real patient names, medical record numbers, addresses, phone numbers, Social Security numbers, or other direct patient identifiers are used.
+### follow_up_summary
+
+One row per encounter.
+
+This table aggregates multiple follow-up events before joining them
+to encounter-level data.
+
+### analytics_encounter
+
+One row per healthcare encounter.
+
+This is the primary analytics-ready table used by the KPI layer.
+
+## KPI Layer
+
+The project produces the following reusable KPI tables:
+
+- kpi_readmission_summary
+- kpi_department
+- kpi_diagnosis
+- kpi_insurance
+- kpi_follow_up
+- kpi_monthly_trend
+
+## Data Quality Controls
+
+The pipeline validates:
+
+- Duplicate patient IDs
+- Duplicate encounter IDs
+- Duplicate diagnosis codes
+- Duplicate follow-up IDs
+- Missing values
+- Invalid patient references
+- Invalid diagnosis references
+- Invalid encounter references
+- Admission/discharge date consistency
+- Length-of-stay consistency
+
+## Technology
+
+- Python
+- Pandas
+- DuckDB
+- SQL
+- CSV
+- GitHub
+- Power BI (dashboard layer)
+
+## Data Classification
+
+The dataset used in this project is synthetic and contains no real
+patient information.ord numbers, addresses, phone numbers, Social Security numbers, or other direct patient identifiers are used.
