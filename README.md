@@ -72,29 +72,34 @@ Processed Analytics Data
       v
 Power BI Dashboard
 
-Repository Structure
+## Repository Structure
 
-data/
-    raw/
-    processed/
-
-documentation/
-    data_model.md
-
-python/
-    00_generate_synthetic_data.py
-    01_data_profiling.py
-    02_run_sql_quality_checks.py
-    03_run_readmission_analysis.py
-    04_build_analytics_model.py
-    05_build_kpi_layer.py
-    06_export_kpi_data.py
-
-sql/
-    01_data_quality_checks.sql
-    02_readmission_analysis.sql
-    03_analytics_model.sql
-    04_kpi_layer.sql
-
-dashboard/
-    README.md
+```text
+healthcare-readmission-analytics/
+│
+├── README.md
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── documentation/
+│   └── data_model.md
+│
+├── python/
+│   ├── 00_generate_synthetic_data.py
+│   ├── 01_data_profiling.py
+│   ├── 02_run_sql_quality_checks.py
+│   ├── 03_run_readmission_analysis.py
+│   ├── 04_build_analytics_model.py
+│   ├── 05_build_kpi_layer.py
+│   └── 06_export_kpi_data.py
+│
+├── sql/
+│   ├── 01_data_quality_checks.sql
+│   ├── 02_readmission_analysis.sql
+│   ├── 03_analytics_model.sql
+│   └── 04_kpi_layer.sql
+│
+└── dashboard/
+    └── README.md
